@@ -49,24 +49,14 @@ func (s *SRP) makeLittleK() (*big.Int, error) {
 	// We will remake k, even if already created, as server needs to
 	// remake it after manually setting k
 	h := sha256.New()
-	_, err := h.Write(append(s.group.n.Bytes(), LeftPadBytes(s.group.g.Bytes(), len(s.group.n.Bytes()))...))
+	size := len(s.group.n.Bytes())
+	_, err := h.Write(append(s.group.n.Bytes(), LeftPadBytes(s.group.g.Bytes(), size)...))
 	if err != nil {
 		return nil, fmt.Errorf("failed to write N to hasher: %v", err)
 	}
 	k := &big.Int{}
 	s.k = k.SetBytes(h.Sum(nil))
 	return s.k, nil
-}
-
-func LeftPadBytes(slice []byte, l int) []byte {
-	if l <= len(slice) {
-		return slice
-	}
-
-	padded := make([]byte, l)
-	copy(padded[l-len(slice):], slice)
-
-	return padded
 }
 
 // makeA calculates A (if necessary) and returns it
@@ -169,11 +159,9 @@ func (s *SRP) calculateU() (*big.Int, error) {
 	}
 
 	h := sha256.New()
+	size := len(s.group.n.Bytes())
 
-	trimmedHexPublicA := serverStyleHexFromBigInt(s.ephemeralPublicA)
-	trimmedHexPublicB := serverStyleHexFromBigInt(s.ephemeralPublicB)
-
-	_, err := h.Write([]byte(fmt.Sprintf("%s%s", trimmedHexPublicA, trimmedHexPublicB)))
+	_, err := h.Write(append(LeftPadBytes(s.ephemeralPublicA, size), LeftPadBytes(s.ephemeralPublicB, size)...))
 	if err != nil {
 		return nil, fmt.Errorf("failed to write to hasher: %v", err)
 	}
@@ -199,6 +187,17 @@ func serverStyleHexFromBigInt(bn *big.Int) string {
 	res := strings.TrimLeft(l, "0")
 
 	return res
+}
+
+func LeftPadBytes(slice []byte, l int) []byte {
+	if l <= len(slice) {
+		return slice
+	}
+
+	padded := make([]byte, l)
+	copy(padded[l-len(slice):], slice)
+
+	return padded
 }
 
 /**
