@@ -122,7 +122,6 @@ func (s *SRP) makeB() (*big.Int, error) {
 	// We also do some modular reduction on some of our intermediate values
 	term2.Exp(s.group.g, s.ephemeralPrivate, s.group.n) // #nosec G105
 	term1.Mul(s.k, s.v)
-	term1.Mod(term1, s.group.n)
 	s.ephemeralPublicB.Add(term1, term2)
 	s.ephemeralPublicB.Mod(s.ephemeralPublicB, s.group.n) // #nosec G105
 
