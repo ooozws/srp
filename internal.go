@@ -161,7 +161,7 @@ func (s *SRP) calculateU() (*big.Int, error) {
 	h := sha256.New()
 	size := len(s.group.n.Bytes())
 
-	_, err := h.Write(append(LeftPadBytes(s.ephemeralPublicA, size), LeftPadBytes(s.ephemeralPublicB, size)...))
+	_, err := h.Write(append(LeftPadBytes(s.ephemeralPublicA.Bytes(), size), LeftPadBytes(s.ephemeralPublicB.Bytes(), size)...))
 	if err != nil {
 		return nil, fmt.Errorf("failed to write to hasher: %v", err)
 	}
