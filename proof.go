@@ -36,12 +36,11 @@ func (s *SRP) M(salt []byte, uname string) ([]byte, error) {
 		return nil, fmt.Errorf("XOR had %d bytes instead of %d",
 			length, sha256.Size)
 	}
-	groupHash := sha256.Sum256(groupXOR)
 
 	uHash := sha256.Sum256([]byte(uname))
 	h := sha256.New()
 
-	if _, err := h.Write(groupHash[:]); err != nil {
+	if _, err := h.Write(groupXOR[:]); err != nil {
 		return nil, fmt.Errorf("failed to write group hash to hasher: %v", err)
 	}
 	if _, err := h.Write(uHash[:]); err != nil {
